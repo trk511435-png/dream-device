@@ -3,25 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم سوارة الأحلام الذكية</title>
+    <title>منصة إدارة سوارة الأحلام الذكية</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
-        body { background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { background: #1e293b; width: 100%; max-width: 450px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 1px solid #334155; }
-        h1 { font-size: 1.4rem; text-align: center; margin-bottom: 20px; color: #38bdf8; }
-        .status-box { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
-        .status-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        body { 
+            background: linear-gradient(135deg, #090d16 0%, #111c33 100%); 
+            color: #f8fafc; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        .container { 
+            background: rgba(30, 41, 59, 0.85); 
+            backdrop-filter: blur(10px);
+            width: 100%; 
+            max-width: 480px; 
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
+            border: 1px solid rgba(51, 65, 85, 0.6); 
+        }
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 25px; color: #38bdf8; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .status-box { 
+            background: rgba(15, 23, 42, 0.7); 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(51, 65, 85, 0.4); 
+        }
+        .status-item { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 0.95rem; }
         .status-item:last-child { margin-bottom: 0; }
         .label { color: #94a3b8; }
         .value { font-weight: bold; color: #f1f5f9; }
-        .controls { display: flex; flex-direction: column; gap: 12px; }
-        button { background: #0284c7; color: #white; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #0369a1; }
-        button.active { background: #16a34a; }
-        button.active:hover { background: #15803d; }
-        .input-group { display: flex; gap: 8px; margin-top: 5px; }
-        input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.9rem; }
-        .log { margin-top: 15px; font-size: 0.8rem; color: #64748b; text-align: center; }
+        
+        .controls { display: flex; flex-direction: column; gap: 14px; }
+        
+        .btn { 
+            width: 100%; 
+            background: #0284c7; 
+            color: #fff; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 14px; 
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+        .btn:hover { background: #0369a1; transform: translateY(-1px); }
+        .btn-bluetooth { background: #7c3aed; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+        .btn-bluetooth:hover { background: #6d28d9; }
+        
+        .log { margin-top: 20px; font-size: 0.85rem; color: #64748b; text-align: center; padding: 8px; border-radius: 8px; background: rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -31,65 +68,67 @@
         
         <div class="status-box">
             <div class="status-item">
-                <span class="label">حالة الجهاز:</span>
-                <span id="deviceState" class="value" style="color: #ef4444;">متوقف (Day Mode)</span>
+                <span class="label">حالة الاتصال:</span>
+                <span id="connectionStatus" class="value" style="color: #ef4444;">غير متصل</span>
             </div>
             <div class="status-item">
-                <span class="label">آخر حلم مسجل:</span>
-                <span id="lastDream" class="value">حلم الطيران الافتراضي</span>
+                <span class="label">كود التصنيع (Serial):</span>
+                <span id="deviceSerial" class="value">-</span>
             </div>
             <div class="status-item">
                 <span class="label">نسبة البطارية:</span>
-                <span id="batteryLevel" class="value">85%</span>
+                <span id="batteryLevel" class="value">-</span>
+            </div>
+            <div class="status-item">
+                <span class="label">وضع السوارة:</span>
+                <span id="deviceMode" class="value">نهاري (Day Mode)</span>
             </div>
         </div>
 
         <div class="controls">
-            <button id="modeToggleBtn" onclick="toggleMode()">تفعيل وضع الأحلام (Dream Mode)</button>
-            
-            <div>
-                <span class="label" style="font-size: 0.85rem; display: block; margin-bottom: 5px;">تحديث اسم الحلم الأخير:</span>
-                <div class="input-group">
-                    <input type="text" id="newDreamInput" placeholder="اكتب اسم الحلم الجديد...">
-                    <button onclick="updateDream()" style="padding: 10px 15px;">حفظ</button>
-                </div>
-            </div>
+            <button class="btn btn-bluetooth" onclick="connectBluetooth()">بحث والاتصال بالسوارة (Bluetooth)</button>
+            <button class="btn" onclick="toggleDreamMode()">تبديل وضع الأحلام</button>
         </div>
 
-        <div class="log" id="logStatus">جاهز للاتصال بالسوارة...</div>
+        <div class="log" id="logStatus">قم بتشغيل البلوتوث واضغط للبحث عن جهازك...</div>
     </div>
 
     <script>
-        let isDreamMode = false;
-
-        function toggleMode() {
-            isDreamMode = !isDreamMode;
-            const btn = document.getElementById('modeToggleBtn');
-            const stateSpan = document.getElementById('deviceState');
+        async function connectBluetooth() {
+            const logEl = document.getElementById('logStatus');
+            const statusEl = document.getElementById('connectionStatus');
             
-            if (isDreamMode) {
-                btn.textContent = "إيقاف وضع الأحلام";
-                btn.className = "active";
-                stateSpan.textContent = "يعمل (Dream Mode ON)";
-                stateSpan.style.color = "#22c55e";
-                document.getElementById('logStatus').textContent = "تم إرسال أمر الدخول لوضع الأحلام بنجاح.";
-            } else {
-                btn.textContent = "تفعيل وضع الأحلام (Dream Mode)";
-                btn.className = "";
-                stateSpan.textContent = "متوقف (Day Mode)";
-                stateSpan.style.color = "#ef4444";
-                document.getElementById('logStatus').textContent = "تم العودة للوضع العادي.";
+            try {
+                logEl.textContent = "جاري البحث عن أجهزة الأحلام القريبة...";
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['battery_service']
+                });
+                
+                statusEl.textContent = "متصل: " + device.name;
+                statusEl.style.color = "#22c55e";
+                logEl.textContent = "تم الاتصال بنجاح! جاري سحب كود التصنيع...";
+                
+                // افتراضي تجريبي لحين ربط الـ ESP32 الحقيقي
+                document.getElementById('deviceSerial').textContent = "SM-DREAM-9482";
+                document.getElementById('batteryLevel').textContent = "92%";
+                
+            } catch (error) {
+                console.log("فشل الاتصال:", error);
+                logEl.textContent = "تم إلغاء الاتصال أو حدث خطأ.";
             }
         }
 
-        function updateDream() {
-            const inputVal = document.getElementById('newDreamInput').value.trim();
-            if (inputVal !== "") {
-                document.getElementById('lastDream').textContent = inputVal;
-                document.getElementById('newDreamInput').value = "";
-                document.getElementById('logStatus').textContent = "تم تحديث الحلم الأخير وحفظه في الذاكرة.";
+        function toggleDreamMode() {
+            const modeEl = document.getElementById('deviceMode');
+            if (modeEl.textContent.includes('نهاري')) {
+                modeEl.textContent = "وضع الأحلام (Dream Mode ON)";
+                modeEl.style.color = "#a855f7";
+                document.getElementById('logStatus').textContent = "تم تفعيل وضع الأحلام على السوارة.";
             } else {
-                alert("الرجاء كتابة اسم الحلم أولاً!");
+                modeEl.textContent = "نهاري (Day Mode)";
+                modeEl.style.color = "#f1f5f9";
+                document.getElementById('logStatus').textContent = "تم العودة للوضع العادي.";
             }
         }
     </script>
